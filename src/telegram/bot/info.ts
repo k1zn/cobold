@@ -6,6 +6,6 @@ import { evaluatorsFor } from "@/telegram/helpers/text"
 export const infoDp = Dispatcher.child()
 
 settingsDp.onNewMessage(filters.command("info"), async (msg) => {
-    const { t } = await evaluatorsFor(msg.sender)
+    const { t } = await evaluatorsFor(msg.chat)
     await msg.replyText(t("info", { bugs, name, repository, version }))
 })
