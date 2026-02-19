@@ -48,3 +48,25 @@ export function tryParseUrl(url: string) {
 
     return null
 }
+
+const SUPPORTED_HOSTS: { hostname: RegExp, path?: RegExp }[] = [
+    { hostname: /^(www\.|vm\.|vt\.)?tiktok\.com$/ },
+    { hostname: /^(www\.)?youtube\.com$/, path: /^\/shorts\// },
+    { hostname: /^(www\.)?instagram\.com$/, path: /^\/(reel|reels|p)\// },
+]
+
+export function isSupportedPlatformUrl(url: string): boolean {
+    let parsed: URL
+    try {
+        parsed = new URL(url)
+    } catch {
+        try {
+            parsed = new URL(`https://${url}`)
+        } catch {
+            return false
+        }
+    }
+    return SUPPORTED_HOSTS.some(({ hostname, path }) =>
+        hostname.test(parsed.hostname) && (!path || path.test(parsed.pathname)),
+    )
+}

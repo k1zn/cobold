@@ -7,6 +7,7 @@ import { BotInline, BotKeyboard } from "@mtcute/node"
 
 import type { MediaRequest } from "@/core/data/request"
 import { createRequest, getRequest } from "@/core/data/request"
+import { isSupportedPlatformUrl } from "@/core/utils/url"
 import type { Settings } from "@/core/data/settings"
 import { incrementDownloadCount } from "@/core/data/stats"
 import {
@@ -32,7 +33,9 @@ downloadDp.onNewMessage(async (msg) => {
 
     const urlEntities = msg.entities.filter(e => e.is("text_link") || e.is("url"))
     const extractedUrls = urlEntities.map(e => (e.is("text_link") ? e.params.url : e.text))
-    const urls = extractedUrls.length ? extractedUrls : [msg.text]
+    const candidates = extractedUrls.length ? extractedUrls : [msg.text]
+    const urls = candidates.filter(isSupportedPlatformUrl)
+    if (!urls.length) return
     for (const url of urls) {
         const req = await createRequest(url, msg.sender.id)
 
