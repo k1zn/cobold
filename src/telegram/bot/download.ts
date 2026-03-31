@@ -9,6 +9,7 @@ import type { MediaRequest } from "@/core/data/request"
 import { createRequest, getRequest } from "@/core/data/request"
 import type { Settings } from "@/core/data/settings"
 import { incrementDownloadCount } from "@/core/data/stats"
+import { isSupportedPlatformUrl } from "@/core/utils/url"
 import {
     getOutputSelectionMessage,
     handleMediaDownload,
@@ -23,10 +24,6 @@ export const downloadDp = Dispatcher.child()
 const errorDeleteDelay = 30 * 1000
 
 downloadDp.onNewMessage(async (msg) => {
-    if (msg.text === "meow") {
-        await msg.replyText("meow :з")
-        return
-    }
 
     const isGroupChat = msg.chat.type === "chat"
     const isChannel = isGroupChat && msg.chat.chatType === "channel"
@@ -37,6 +34,8 @@ downloadDp.onNewMessage(async (msg) => {
     const urlEntities = msg.entities.filter(e => e.is("text_link") || e.is("url"))
     const extractedUrls = urlEntities.map(e => (e.is("text_link") ? e.params.url : e.text))
     const urls = isGroupChat ? extractedUrls : (extractedUrls.length ? extractedUrls : [msg.text])
+    urls = urls.filter(isSupportedPlatformUrl)
+    if (!urls.length) return
 
     if (isChannel) {
         const [url] = urls
