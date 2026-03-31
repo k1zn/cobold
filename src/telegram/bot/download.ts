@@ -33,8 +33,7 @@ downloadDp.onNewMessage(async (msg) => {
 
     const urlEntities = msg.entities.filter(e => e.is("text_link") || e.is("url"))
     const extractedUrls = urlEntities.map(e => (e.is("text_link") ? e.params.url : e.text))
-    const urls = isGroupChat ? extractedUrls : (extractedUrls.length ? extractedUrls : [msg.text])
-    urls = urls.filter(isSupportedPlatformUrl)
+    const urls = (isGroupChat ? extractedUrls : (extractedUrls.length ? extractedUrls : [msg.text])).filter(isSupportedPlatformUrl)
     if (!urls.length) return
 
     if (isChannel) {
